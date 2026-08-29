@@ -51,12 +51,14 @@ fun PodcastEpisodePlayButton(
 
     val episode = bundle.episode
     val playState = bundle.playState
+    val played = playState?.played ?: false
+    val playedState = playState?.state ?: 0
 
     val isCurrentlyPlaying = vm.metadataEpisodeId == episode.id
 
     val buttonState = when(isCurrentlyPlaying && vm.isPlaying) {
         true -> ButtonState.PLAYING
-        false -> when(playState!!.played) {
+        false -> when(played) {
             true -> ButtonState.PLAYED
             false -> ButtonState.NOT_PLAYING
         }
@@ -65,7 +67,7 @@ fun PodcastEpisodePlayButton(
     StateDisplayingToggleButton(
         state = when(buttonState) {
             ButtonState.PLAYED -> 1f
-            else -> playState!!.state / episode.duration.toFloat()
+            else -> playedState / episode.duration.toFloat()
         },
         minimumState = 0.03f,
         checked = isCurrentlyPlaying,
@@ -98,7 +100,7 @@ fun PodcastEpisodePlayButton(
                     else -> formatEpisodePlayTime(
                         context = context,
                         duration = episode.duration,
-                        state = playState!!.state
+                        state = playedState
                     )
                 }
             )
