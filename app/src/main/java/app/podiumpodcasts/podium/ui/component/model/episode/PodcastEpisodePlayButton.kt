@@ -1,7 +1,5 @@
 package app.podiumpodcasts.podium.ui.component.model.episode
 
-import android.util.Log
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import app.podiumpodcasts.podium.AppActivity
 import app.podiumpodcasts.podium.R
 import app.podiumpodcasts.podium.api.db.model.PodcastEpisodeBundle
 import app.podiumpodcasts.podium.ui.component.button.StateDisplayingToggleButton
@@ -54,9 +51,9 @@ fun PodcastEpisodePlayButton(
     val played = playState?.played ?: false
     val playedState = playState?.state ?: 0
 
-    val isCurrentlyPlaying = vm.metadataEpisodeId == episode.id
+    val isCurrentlyEpisode = vm.metadataEpisodeId == episode.id
 
-    val buttonState = when(isCurrentlyPlaying && vm.isPlaying) {
+    val buttonState = when(isCurrentlyEpisode && vm.isPlaying) {
         true -> ButtonState.PLAYING
         false -> when(played) {
             true -> ButtonState.PLAYED
@@ -70,14 +67,16 @@ fun PodcastEpisodePlayButton(
             else -> playedState / episode.duration.toFloat()
         },
         minimumState = 0.03f,
-        checked = isCurrentlyPlaying,
+        checked = isCurrentlyEpisode,
         onCheckedChange = {
-            if(!isCurrentlyPlaying) {
+            if(!isCurrentlyEpisode) {
                 vm.play(context, bundle)
             } else if(vm.isPlaying) {
                 vm.pause()
-            } else {
+            } else if (vm.canResumeCurrentEpisode) {
                 vm.play()
+            } else {
+                vm.play(context, bundle)
             }
         },
         modifier = modifier,
